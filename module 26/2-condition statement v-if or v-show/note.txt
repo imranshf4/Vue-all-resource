@@ -1,0 +1,7 @@
+Importing data from external file 
+| Binding data with html attribute, Assignment 
+| JavaScript expressions in data binding 
+| Displaying html, if else condition 
+| v-show, v-if items grouping with template tag 
+| Difference between v-if and v-show
+
