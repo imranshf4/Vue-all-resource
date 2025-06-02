@@ -16,13 +16,13 @@
           <tr v-for="(item, index) in cartItems" :key="item.id" class="hover:bg-gray-50">
             <td class="p-4 border-b">{{ item.name }}</td>
             <td class="p-4 border-b flex items-center gap-2">
-              <button @click="decreaseQuantity(item)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              <button @click="decreaseQuantity(item)" class="cursor-pointer"
                 :disabled="item.quantity <= 1">
-                -
+                <img src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000" class="w-5 h-5" alt="Cart" />
               </button>
               <span class="px-2">{{ item.quantity }}</span>
-              <button @click="increaseQuantity(item)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
-                +
+              <button @click="increaseQuantity(item)"  class="cursor-pointer">
+                <img src="https://img.icons8.com/?size=100&id=61&format=png&color=000000" class="w-5 h-5" alt="Cart" />
               </button>
             </td>
             <td class="p-4 border-b">${{ item.price.toFixed(2) - ((item.price * item.discount) / 100) }}</td>
@@ -38,8 +38,11 @@
         </tbody>
       </table>
       <div class="text-right mt-4 text-lg font-semibold text-gray-800">
-        Total: ${{ cartTotal }}
+        Total: ${{ cartTotal.toFixed(2) }}
       </div>
+
+      <button @click="Checkout"
+        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mt-4">Checkout</button>
     </div>
 
     <div v-else class="text-gray-600 mt-4">Your cart is empty.</div>
@@ -47,8 +50,9 @@
 </template>
 
 <script setup>
-import { useCartStore } from "@/data/cart"
-import { computed } from "vue"
+import { useCartStore } from "@/data/cart";
+import axios from "axios";
+import { computed } from "vue";
 
 const cartStore = useCartStore()
 const cartItems = computed(() => cartStore.items)
@@ -72,9 +76,30 @@ function decreaseQuantity(item) {
 
 const cartTotal = computed(() => {
   return cartStore.items.reduce((total, item) => {
-    const discountedPrice = item.price * item.quantity - ((item.price * item.discount) / 100) * item.quantity;
-    return total + discountedPrice;
+    const discountedPrice = item.price - (item.price * item.discount) / 100;
+    return total + discountedPrice * item.quantity;
   }, 0);
-})
+});
+
+const Checkout = async () => {
+  const formData = new FormData();
+
+  cartStore.items.forEach((item, index) => {
+    formData.append(`items[${index}][product_id]`, item.id);
+    formData.append(`items[${index}][price]`, item.price);
+    formData.append(`items[${index}][quantity]`, item.quantity);
+    formData.append(`items[${index}][discount]`, item.discount);
+  });
+
+  formData.append('total_price', cartTotal.value);
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/order/store', formData);
+    cartStore.items = [];
+    localStorage.removeItem('cart');
+    console.log(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 </script>

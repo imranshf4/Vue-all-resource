@@ -13,7 +13,7 @@
           <img src="https://img.icons8.com/?size=100&id=3337&format=png&color=000000" class="w-7 h-7" alt="Cart" />
         </button>
         <!-- Optional: Cart Badge -->
-        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5">
+        <span class="absolute -top-2 -right-2 bg-blue-700 text-white text-xs font-bold rounded-full px-1.5 py-0.5">
           {{ cartItems.length ? cartItems.length : 0 }}
         </span>
       </div>
